@@ -1,0 +1,9 @@
+
+# Ignorar vendor
+vendor/
+
+# ignorar stripe-sample-code
+stripe-sample-code/
+
+# Ignorar composer.lock
+composer.lock
