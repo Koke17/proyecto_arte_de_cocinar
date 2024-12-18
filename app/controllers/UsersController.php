@@ -110,12 +110,18 @@ class UsersController extends Controller {
             $name       = $_POST['name_user'];
             $lastname   = $_POST['lastname_user'];
             $email      = $_POST['email_user'];
-            $password   = $_POST['password_user'];
+            $contraseña   = $_POST['password_user'];
             $rol        = $_POST["role_id"];
 
-            $this->userModel->create($name, $lastname, $email, $password, $rol);
+            $password = password_hash($contraseña, PASSWORD_DEFAULT);
 
-            redirect('Users');
+            $userCreated=$this->userModel->create($name, $lastname, $email, $password, $rol);
+
+            if ( $userCreated ) {
+                redirect('/?success=Usuario registrado correctamente');
+            }else{
+                redirect('Users/create?error=Error al crear el usuario');
+            }
 
         } catch (\Throwable $th) {
             redirect('Users/create?error=Error al crear el usuario&message=' . $th->getMessage());
