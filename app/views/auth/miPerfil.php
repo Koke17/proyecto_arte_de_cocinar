@@ -1,4 +1,3 @@
-
 <!-- Mi perfil -->
 <div class="container">
 
@@ -17,6 +16,7 @@
             $rol = 'Cliente';
         }
 
+        
 
         //Validamos los datos por si no se hubiera completado el perfil anteriormente
         $direccion = isset($data["detalles"]->direccion) ? $data["detalles"]->direccion : '';

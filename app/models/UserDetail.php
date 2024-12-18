@@ -31,7 +31,16 @@ class UserDetail extends Model {
 
     public function update( $id, $direccion, $telefono, $imagen, $politics, $ofertas ){
         $db = Database::getConnection();
-        $query = $db->query("UPDATE ".$this->table." SET direccion = '$direccion', telefono = '$telefono', imagen = '$imagen', politics = '$politics', ofertas = '$ofertas' WHERE user_id = $id");
+
+        $registroExistente = $this->find($id);
+        
+        if ($registroExistente) {
+            $query = $db->query("UPDATE ".$this->table." SET direccion = '$direccion', telefono = '$telefono', imagen = '$imagen', politics = '$politics', ofertas = '$ofertas' WHERE user_id = $id");
+        }else{
+            $query = $db->query("INSERT INTO ".$this->table." (user_id, direccion, telefono, imagen, politics, ofertas) VALUES ('$id', '$direccion', '$telefono', '$imagen', '$politics', '$ofertas')");
+        }
+
+        
         return $query;
     }
 
