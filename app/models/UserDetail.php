@@ -42,3 +42,4 @@ class UserDetail extends Model {
     }
 
 }
+?>

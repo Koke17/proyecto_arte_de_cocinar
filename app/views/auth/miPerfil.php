@@ -17,11 +17,13 @@
             $rol = 'Cliente';
         }
 
-        $direccion = $data["detalles"]->direccion;
-        $telefono = $data["detalles"]->telefono;
-        $imagen = $data["detalles"]->imagen;
-        $politics = $data["detalles"]->politics;
-        $ofertas = $data["detalles"]->ofertas;
+
+        //Validamos los datos por si no se hubiera completado el perfil anteriormente
+        $direccion = isset($data["detalles"]->direccion) ? $data["detalles"]->direccion : '';
+        $telefono = isset($data["detalles"]->telefono) ? $data["detalles"]->telefono : '';
+        $imagen = isset($data["detalles"]->imagen) ? $data["detalles"]->imagen : 'default-avatar.png'; // Imagen predeterminada
+        $politics = isset($data["detalles"]->politics) ? $data["detalles"]->politics : 0;
+        $ofertas = isset($data["detalles"]->ofertas) ? $data["detalles"]->ofertas : 0;
 
     ?>
 
@@ -46,8 +48,8 @@
 
                     <!-- datos personales -->
                     <h5 class="card-title">Datos de contacto</h5>
-                    <p class="card-text">Dirección: <?= $direccion ?></p>
-                    <p class="card-text">Teléfono: <?= $telefono ?></p>
+                    <p class="card-text">Dirección: <?= $$data["detalles"]->direccion ?></p>
+                    <p class="card-text">Teléfono: <?= $data['detalles']->telefono ?></p>
 
                     <!-- preferencias -->
                     <h5 class="card-title">Contacto</h5>

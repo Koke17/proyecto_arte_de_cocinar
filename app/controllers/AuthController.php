@@ -82,11 +82,13 @@ class AuthController extends Controller {
         $user = $this->userModel->getByEmail($email);
 
         if ( !$user ) {
-            redirect('/auth?error=Usuario no encontrado');
+            redirect('/auth/index?error=Email o contraseña incorrectos');
+            return;
         }
 
         if ( !password_verify($password, $user->password_user) ) {
-            redirect('/auth?error=Email o contraseña incorrectos');
+            redirect('/auth/index?error=Email o contraseña incorrectos');
+            return;
         }
 
         $_SESSION['user'] = $user;
@@ -146,8 +148,9 @@ class AuthController extends Controller {
         $password   = $_POST['password'];
         $direccion  = $_POST['direccion'];
         $telefono   = $_POST['telefono'];
-        $politics   = $_POST['politics'];
-        $ofertas    = $_POST['ofertas'];
+        $politics = isset($_POST['politics']) ? 1 : 0;
+        $ofertas = isset($_POST['ofertas']) ? 1 : 0;
+        $rol        = $_SESSION['user']->role_id;
 
         // Encriptar la contraseña
         $password = password_hash($password, PASSWORD_DEFAULT);
@@ -179,10 +182,11 @@ class AuthController extends Controller {
                 move_uploaded_file($imagenTmp, $imagenDestination);
                 $finalUrl = url('assets/img/profile_pics/' . $imagenNameNew);
 
-                $this->userModel->update($_SESSION['user']->user_id, $nombre, $apellido, $email);
+                $this->userModel->update($_SESSION['user']->user_id, $nombre, $apellido, $email,$rol);
                 $this->userDetailsModel->update($_SESSION['user']->user_id, $direccion, $telefono, $finalUrl, $politics, $ofertas);
 
                 $_SESSION['user'] = $this->userModel->find($_SESSION['user']->user_id);
+                
 
                 redirect('/auth/miPerfil?success=Perfil actualizado correctamente');
 

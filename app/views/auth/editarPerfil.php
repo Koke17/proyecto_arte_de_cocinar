@@ -1,6 +1,5 @@
 
 <!-- Formulario para editar perfil con imagen -->
-
 <?php 
 
     $rol = '';
@@ -11,11 +10,11 @@
         $rol = 'Cliente';
     }
 
-    $direccion = $data["detalles"]->direccion;
-    $telefono = $data["detalles"]->telefono;
-    $imagen = $data["detalles"]->imagen;
-    $politics = $data["detalles"]->politics;
-    $ofertas = $data["detalles"]->ofertas;
+    $direccion = isset($data["detalles"]->direccion) ? $data["detalles"]->direccion : '';
+    $telefono = isset($data["detalles"]->telefono) ? $data["detalles"]->telefono : '';
+    $imagen = isset($data["detalles"]->imagen) ? $data["detalles"]->imagen : 'default-avatar.png'; // Imagen predeterminada
+    $politics = isset($data["detalles"]->politics) ? $data["detalles"]->politics : 0;
+    $ofertas = isset($data["detalles"]->ofertas) ? $data["detalles"]->ofertas : 0;
 ?>
 
 <div class="container" style="margin-bottom: 150px;">

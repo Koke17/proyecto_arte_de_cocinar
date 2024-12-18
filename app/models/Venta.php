@@ -13,7 +13,7 @@ class Venta extends Model {
 
     public function getAll() {
         $db = Database::getConnection();
-        $query = $db->query("SELECT * FROM ".$this->table);
+        $query = $db->query("SELECT * FROM ".$this->table." INNER JOIN pedidos_art_co_v1 ON pedidos_art_co_v1.pedido_id = ventas_art_co_v1.pedido_id "); //solo relacionamos con la clave foranea no hace falta hacer mas inner joins porque si no nos salen varios stripe_id para un mismo pedido, luego los mostramos en el controlador llamando a los otros modelos
         return $query->fetchAll(PDO::FETCH_OBJ); // Devolver como objetos
     }
 

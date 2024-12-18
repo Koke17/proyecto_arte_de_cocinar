@@ -13,7 +13,7 @@ class Pedido extends Model {
 
     public function getAll() {
         $db = Database::getConnection();
-        $query = $db->query("SELECT * FROM ".$this->table);
+        $query = $db->query("SELECT * FROM ".$this->table. "WHERE estado_preparacion IN (1,2,3)");
         return $query->fetchAll(PDO::FETCH_OBJ); // Devolver como objetos
     }
 

@@ -122,4 +122,11 @@ if( !function_exists('uploadImagesServer') ){
         ];
 
     }
+
+    //Método para formatear el precio a euros
+    if (!function_exists('formatMoney')) {
+        function formatMoney($money){
+            return number_format($money, 2, ',', '.').' €';
+        }
+    }
 }

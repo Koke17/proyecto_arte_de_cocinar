@@ -132,16 +132,20 @@
                     openLoader();
                 },
                 success: function(response) {
+
                     closeLoader();
-                    if (response.status == true) {
-                        e.target.setAttribute("data-estado", estado);
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Estado actualizado correctamente',
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                    }
+                    
+                    e.target.setAttribute("data-estado",estado);
+
+                    Swal.fire({
+                        icon:'success',
+                        title:'Estado actualizado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+
+                    window.location.reaload();
+
                 },
                 error: function(error){
                     conseole.log(error);

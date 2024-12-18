@@ -49,10 +49,16 @@ class UsersController extends Controller {
 
     public function delete($id){
 
-        $this->userDetailsModel->delete($id);
-        $this->userModel->delete($id);
+        try {
+             
+            $this->userDetailsModel->delete($id);
+            $this->userModel->delete($id);
 
-        redirect('Users');
+            redirect('Users');
+
+        } catch (\Throwable $th) {
+            redirect('Users?error=Error al eliminar el usuario&message=' . $th->getMessage());
+        }
     }
 
     public function update($id){
@@ -70,14 +76,20 @@ class UsersController extends Controller {
 
     public function store($id){
 
-        $name       = $_POST['name_user'];
-        $lastname   = $_POST['lastname_user'];
-        $email      = $_POST['email_user'];
-        $rol        = $_POST["role_id"];
+        try{
+            
+            $name       = $_POST['name_user'];
+            $lastname   = $_POST['lastname_user'];
+            $email      = $_POST['email_user'];
+            $rol        = $_POST["role_id"];
 
-        $this->userModel->update($id, $name, $lastname, $email, $rol);
+            $this->userModel->update($id, $name, $lastname, $email, $rol);
 
-        redirect('Users');
+            redirect('Users');
+
+        }catch(\Throwable $th){
+            redirect('Users/update/' . $id . '?error=Error al actualizar el usuario&message=' . $th->getMessage());
+        }
     }
 
     public function create(){
@@ -92,14 +104,23 @@ class UsersController extends Controller {
 
     public function storeNewUser(){
 
-        $name       = $_POST['name_user'];
-        $lastname   = $_POST['lastname_user'];
-        $email      = $_POST['email_user'];
-        $password   = $_POST['password_user'];
-        $rol        = $_POST["role_id"];
+        
 
-        $this->userModel->create($name, $lastname, $email, $password, $rol);
+        try {
+            $name       = $_POST['name_user'];
+            $lastname   = $_POST['lastname_user'];
+            $email      = $_POST['email_user'];
+            $password   = $_POST['password_user'];
+            $rol        = $_POST["role_id"];
 
-        redirect('Users');
+            $this->userModel->create($name, $lastname, $email, $password, $rol);
+
+            redirect('Users');
+
+        } catch (\Throwable $th) {
+            redirect('Users/create?error=Error al crear el usuario&message=' . $th->getMessage());
+        }
+
+
     }
 }

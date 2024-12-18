@@ -178,7 +178,7 @@
                                     <a href=<?= url('Roles') ?> class="list-group">Roles</a>
                                 </li>
                                 <li class="list-group">
-                                    <a href=<?= url('Sales') ?> class="list-group">Ventas</a>
+                                    <a href=<?= url('Ventas') ?> class="list-group">Ventas</a>
                                 </li>
                             </ul>
                     </aside>
