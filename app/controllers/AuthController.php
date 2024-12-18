@@ -182,8 +182,8 @@ class AuthController extends Controller {
                 move_uploaded_file($imagenTmp, $imagenDestination);
                 $finalUrl = url('assets/img/profile_pics/' . $imagenNameNew);
 
-                $parametrosUser=$this->userModel->update($_SESSION['user']->user_id, $nombre, $apellido, $email,$rol);
-                $parametrosDetalle=$this->userDetailsModel->update($_SESSION['user']->user_id, $direccion, $telefono, $finalUrl, $politics, $ofertas);
+                $this->userModel->update($_SESSION['user']->user_id, $nombre, $apellido, $email,$rol);
+                $this->userDetailsModel->update($_SESSION['user']->user_id, $direccion, $telefono, $finalUrl, $politics, $ofertas);
 
                 $_SESSION['user'] = $this->userModel->find($_SESSION['user']->user_id);                
 
