@@ -48,8 +48,8 @@
 
                     <!-- datos personales -->
                     <h5 class="card-title">Datos de contacto</h5>
-                    <p class="card-text">Dirección: <?= $$data["detalles"]->direccion ?></p>
-                    <p class="card-text">Teléfono: <?= $data['detalles']->telefono ?></p>
+                    <p class="card-text">Dirección: <?= $direccion ?></p>
+                    <p class="card-text">Teléfono: <?= $telefono ?></p>
 
                     <!-- preferencias -->
                     <h5 class="card-title">Contacto</h5>
