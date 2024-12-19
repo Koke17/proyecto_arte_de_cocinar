@@ -32,7 +32,7 @@ class PedidosController extends Controller{
     public function index(){
 
         if ( $this->roleUser === 1 ) {
-            $pedidos = $this->pedidosModel->getAll();
+            $pedidos = $this->pedidosModel->getAllOrdes(); //Creamos este nuevo modelo para que no aparezccan los pedidos entregados
             foreach ($pedidos as $pedido) {
                 $productosPedido = $this->pedidosModel->getByPrudctoPedido($pedido->pedido_id);
                 $user = $this->userModel->find($pedido->user_id);

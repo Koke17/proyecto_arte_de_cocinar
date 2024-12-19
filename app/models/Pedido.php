@@ -11,9 +11,16 @@ class Pedido extends Model {
         $this->table = $this->getTableName();
     }
 
-    public function getAll() {
+    public function getAll(){
         $db = Database::getConnection();
-        $query = $db->query("SELECT * FROM ".$this->table. "WHERE estado_preparacion IN (1,2,3)");
+        $query = $db->query("SELECT * FROM ".$this->table);
+        return $query->fetchAll(PDO::FETCH_OBJ); // Devolver como objetos
+    }
+
+    //Para los pedidos realizados por los usuarios cuando esten finalizados que se pasen a ventas
+    public function getAllOrdes() {
+        $db = Database::getConnection();
+        $query = $db->query("SELECT * FROM ".$this->table. " WHERE estado_preparacion IN (1,2,3)");
         return $query->fetchAll(PDO::FETCH_OBJ); // Devolver como objetos
     }
 
