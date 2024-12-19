@@ -144,7 +144,7 @@
                         timer: 1500
                     })
 
-                    window.location.reaload();
+                    window.location.reload();
 
                 },
                 error: function(error){
