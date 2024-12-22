@@ -27,7 +27,7 @@
                             <td><?= $venta->estado_pedido ?></td>
                             <td>
                                 <a 
-                                    href="<?= url('Sales/generateFactura?id=' . $venta->stripe_id) ?>" 
+                                    href="<?= url('Ventas/generateFactura?id=' . $venta->stripe_id) ?>" 
                                     class="btn btn-outline-primary btn-sm"
                                 >
                                     Factura

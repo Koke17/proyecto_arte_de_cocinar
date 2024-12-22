@@ -66,4 +66,10 @@ class Venta extends Model {
         return $query;
     }
 
+    public function getByPedidoId($pedido_id){
+        $db = Database::getConnection();
+        $query = $db->query("SELECT * FROM ".$this->table." WHERE pedido_id = $pedido_id");
+        return $query->fetch(PDO::FETCH_OBJ); // Devolver como objeto
+    }
+
 }

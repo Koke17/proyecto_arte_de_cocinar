@@ -51,6 +51,7 @@ class VentasController extends Controller{
     }
 
     public function generateFactura(){
+
         try {
             // Configuración de Stripe
             $stripe = new \Stripe\StripeClient("sk_test_51Q9RKwRw3Ybmso9wLLFw49XlglbieIsQnWUrR0Fi0Welf1WxHfMjIrgaCEzeBg5S2rFdCbqcttTC7ZWmP3YmVz0c008nddrlVH");
@@ -65,6 +66,7 @@ class VentasController extends Controller{
         
             // Crear cliente si no existe
             if (!$customerId) {
+
                 $userPedido = $this->userModel->find($pedido->user_id);
         
                 $customerData = [
@@ -85,37 +87,126 @@ class VentasController extends Controller{
         
             // Obtener productos del pedido
             $productosPedido = $this->pedidosModel->getByPrudctoPedido($pedido->pedido_id);
-        
-            // Crear elementos de línea (Invoice Items)
-            foreach ($productosPedido as $producto) {
-                $stripe->invoiceItems->create([
-                    'customer' => $customerId,
-                    'amount' => intval($producto->precio_product * 100), // Convertir a centavos
-                    'currency' => 'eur',
-                    'description' => $producto->name_product,
-                ]);
-            }
-        
+
             // Crear la factura
             $invoice = $stripe->invoices->create([
                 'customer' => $customerId,
             ]);
-            // Finalizar la factura
+        
+            // Crear elementos de línea (Invoice Items)
+            foreach ($productosPedido as $producto) {
+
+                $existingProduct = $stripe->products->search([
+                    'query' => "name:\"{$producto->name_product}\" AND metadata[\"pedido_id\"]:\"$pedido->pedido_id\"",
+                ]);
+
+                //En caso de que no existe el producto en stripe, que nos lo genere
+                if ( count($existingProduct["data"]) > 0 ) {
+                    $productoStripe = $existingProduct["data"];
+                } else {
+                    $productoStripe = $stripe->products->create([
+                        'name' => $producto->name_product,
+                        'description' => $producto->descripcion_product,
+                        'tax_code' => 'txcd_99999999',
+                        'metadata' => [
+                            'name' => $producto->name_product,
+                            'pedido_id' => $pedido->pedido_id,
+                        ],
+                        'images' => [$producto->product_image],
+                        'default_price_data' => [
+                            'currency' => 'eur',
+                            'unit_amount' => intval($producto->precio_product * 100),
+                        ],
+                    ]);
+                }
+            }
+
+            $product = $stripe->products->search([
+                'query' => "active:\"true\" AND metadata[\"pedido_id\"]:\"$pedido->pedido_id\"",
+            ]);
+
+            //Tenemos que hacerlo ademas de para las facturas(invioces), Stripe tambien necesita un id de cada producto con su precio y todo, es por eso que realizamos otro bucle
+            foreach ($product["data"] as $productoStripe) {
+
+                // verificar si el precio ya existe
+                $existePrecio = $stripe->prices->search([
+                    'query' => "active:\"true\" AND metadata[\"pedido_id\"]:\"$pedido->pedido_id\"",
+                ]);
+                
+                $productInBd = $this->pedidosModel->getProductByName($productoStripe->description); //Comprobamos si ese producto existe en nuestra bb.dd
+
+                if ( count($existePrecio["data"]) > 0 ) {
+                    $price = $existePrecio["data"][0];
+                }else{
+                    $price = $stripe->prices->create([
+                        'currency' => 'eur',
+                        'unit_amount' => intval($productInBd->precio_product * 100),
+                        'product' => $productoStripe->id,
+                        'metadata' => [
+                            'pedido_id' => $pedido->pedido_id,
+                        ],
+                    ]);
+                }
+
+
+                $stripe->invoiceItems->create([
+                    'customer'      => $customerId,
+                    'currency'      => 'eur',
+                    'description'   => $productoStripe->description,
+                    'price'         => $price->id,
+                    'invoice'       => $invoice->id,
+                ]);
+            }
+
+            // Finalizamos la factura
             $finalizedInvoice = $stripe->invoices->finalizeInvoice($invoice->id);
+
             // Obtener la URL del PDF
             $invoicePdfUrl = $finalizedInvoice->invoice_pdf;
 
+            // Consultar con curl, tenemos que realizarlos con cURL, porque Stripe genera una URL externa
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $invoicePdfUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Permitir redirecciones si es necesario
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignorar errores SSL si es necesario (opcional)
+            $pdfContent = curl_exec($ch);
 
-            //Descargar el PDF y guardarlo localmente
-            $pdfContent = file_get_contents($invoicePdfUrl);
-            $filePath = public_url("invoices/{$invoice->id}.pdf");
-            if (!file_exists(public_url('invoices'))) {
-                mkdir(public_url('invoices'), 0777, true);
+            // Manejo de errores en la consulta cURL
+            if ($pdfContent === false) {
+                $error = curl_error($ch);
+                curl_close($ch);
+                die("Error al descargar el PDF: $error");
             }
-            file_put_contents($filePath, $pdfContent);
-            
 
-            // dd($filePath);
+            curl_close($ch);
+
+            // Obtenemos el ID de la venta
+            $ventaID = $this->ventas->getByPedidoId($pedido->pedido_id)->venta_id;
+
+            // Definimos la ruta donde se almacenará el archivo
+            $directoryPath = "../public/assets/invoices/$ventaID";
+            $filePath = "$directoryPath/{$invoice->id}.pdf";
+
+            // Crear el directorio si no existe
+            if (!file_exists($directoryPath)) {
+                mkdir($directoryPath, 0777, true);
+            }
+
+            // Guardar el contenido del PDF en el archivo, recuerda que file_put_contents(), necesita la ruta entera, es por eso que le hemos pasado el directorio completo anteriormente, ya que Stripe genera una ruta externa
+            file_put_contents($filePath, $pdfContent);
+
+            // Descargar el archivo
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $invoice->id . '.pdf"');
+            readfile($filePath);
+
+
+            redirect('/Ventas');
+
+            exit;
+
+        
         
         } catch (\Stripe\Exception\ApiErrorException $e) {
             echo "Error de Stripe: " . $e->getMessage();

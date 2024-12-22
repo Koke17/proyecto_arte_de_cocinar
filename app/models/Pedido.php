@@ -97,4 +97,10 @@ class Pedido extends Model {
         return $query;
     }
 
+    public function getProductByName($name){
+        $db = Database::getConnection();
+        $query = $db->query("SELECT * FROM productos_art_co_v1 WHERE descripcion_product = '$name'");
+        return $query->fetch(PDO::FETCH_OBJ); // Devolver como objeto
+    }
+
 }
